@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import Head from "next/head";
 import Link from "next/link";
 
@@ -6,12 +6,16 @@ import valid from "../utils/valid";
 import { DataContext } from "../store/GlobalState";
 import { postData } from "../utils/fetchData";
 import Cookie from "js-cookie";
+import { useRouter } from "next/router";
 
 const Signin = () => {
   const initialState = { email: "", password: "" };
   const [userData, setUserData] = useState(initialState);
   const { email, password } = userData;
+
   const [state, dispatch] = useContext(DataContext);
+  const { auth } = state;
+  const router = useRouter();
 
   const handleChangeInput = (e) => {
     const { name, value } = e.target;
@@ -42,6 +46,12 @@ const Signin = () => {
     });
     localStorage.setItem("firstLogin", true);
   };
+
+  useEffect(() => {
+    if (Object.keys(auth).length !== 0) {
+      router.push("/");
+    }
+  }, [auth]);
 
   return (
     <div>

@@ -32,7 +32,6 @@ const register = async (req, res) => {
       cf_password,
     });
     await newUser.save();
-    console.log(newUser);
     res.json({ msg: "Register Success" });
   } catch (e) {
     res.status(500).json({ err: e.message });

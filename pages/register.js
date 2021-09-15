@@ -1,6 +1,7 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import Head from "next/head";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 import valid from "../utils/valid";
 import { DataContext } from "../store/GlobalState";
@@ -10,13 +11,17 @@ const Register = () => {
   const initialState = { name: "", email: "", password: "", cf_password: "" };
   const [userData, setUserData] = useState(initialState);
   const { name, email, password, cf_password } = userData;
+
   const [state, dispatch] = useContext(DataContext);
+  const { auth } = state;
+  const router = useRouter();
 
   const handleChangeInput = (e) => {
     const { name, value } = e.target;
     setUserData({ ...userData, [name]: value });
     dispatch({ type: "NOTIFY", payload: {} });
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const errMsg = valid(name, email, password, cf_password);
@@ -29,6 +34,12 @@ const Register = () => {
       return dispatch({ type: "NOTIFY", payload: { error: res.err } });
     return dispatch({ type: "NOTIFY", payload: { success: res.msg } });
   };
+
+  useEffect(() => {
+    if (Object.keys(auth).length !== 0) {
+      router.push("/");
+    }
+  }, [auth]);
 
   return (
     <div>
