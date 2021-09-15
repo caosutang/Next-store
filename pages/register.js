@@ -25,7 +25,9 @@ const Register = () => {
     }
     dispatch({ type: "NOTIFY", payload: { loading: true } });
     const res = await postData("auth/register", userData);
-    console.log(res);
+    if (res.err)
+      return dispatch({ type: "NOTIFY", payload: { error: res.err } });
+    return dispatch({ type: "NOTIFY", payload: { success: res.msg } });
   };
 
   return (
