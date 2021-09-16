@@ -1,12 +1,12 @@
 import React, { useContext, useState, useEffect } from "react";
 import Head from "next/head";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 import valid from "../utils/valid";
 import { DataContext } from "../store/GlobalState";
 import { postData } from "../utils/fetchData";
 import Cookie from "js-cookie";
-import { useRouter } from "next/router";
 
 const Signin = () => {
   const initialState = { email: "", password: "" };
