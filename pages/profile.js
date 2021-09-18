@@ -1,4 +1,5 @@
 import Head from "next/head";
+import Link from "next/link";
 import { useContext, useState, useEffect } from "react";
 
 import { DataContext } from "../store/GlobalState";
@@ -17,7 +18,7 @@ const Profile = () => {
   const { avatar, name, password, cf_password } = data;
 
   const [state, dispatch] = useContext(DataContext);
-  const { auth } = state;
+  const { auth, orders } = state;
 
   useEffect(() => {
     if (auth.user) setData({ ...data, name: auth.user.name });
@@ -174,7 +175,56 @@ const Profile = () => {
             Update
           </button>
         </div>
-        <div className="col-md-8"></div>
+        <div className="col-md-8">
+          <h3 className="text-uppercase">Orders</h3>
+          <div className="my-3 table-responsive">
+            <table
+              className="table-bordered table-hover w-100 text-uppercase"
+              style={{ minWidth: "600px", cursor: "pointer" }}
+            >
+              <thead className="bg-light font-weight-bold">
+                <tr>
+                  <td className="p-2">id</td>
+                  <td className="p-2">date</td>
+                  <td className="p-2">total</td>
+                  <td className="p-2">delivered</td>
+                  <td className="p-2">paid</td>
+                  <td className="p-2">action</td>
+                </tr>
+              </thead>
+              <tbody>
+                {orders.map((order, index) => (
+                  <tr key={index}>
+                    <td className="p-2">{order._id}</td>
+                    <td className="p-2">
+                      {new Date(order.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="p-2">${order.total}</td>
+                    <td className="p-2">
+                      {order.delivered ? (
+                        <i className="fas fa-check text-success"></i>
+                      ) : (
+                        <i className="fas fa-times text-danger"></i>
+                      )}
+                    </td>
+                    <td className="p-2">
+                      {order.paid ? (
+                        <i className="fas fa-check text-success"></i>
+                      ) : (
+                        <i className="fas fa-times text-danger"></i>
+                      )}
+                    </td>
+                    <td className="p-2">
+                      <Link href={`/order/${order._id}`}>
+                        <a>detail</a>
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </section>
     </div>
   );

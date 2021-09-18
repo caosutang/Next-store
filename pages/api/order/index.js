@@ -9,6 +9,9 @@ export default async (req, res) => {
     case "POST":
       await createOrder(req, res);
       break;
+    case "GET":
+      await getOrder(req, res);
+      break;
   }
 };
 
@@ -30,7 +33,7 @@ const createOrder = async (req, res) => {
 
     await newOrder.save();
     res.json({
-      msg: "Payment success! We will contact you to confirm the order.",
+      msg: "Order successful! We will contact you to confirm the order.",
       newOrder,
     });
   } catch (e) {
@@ -46,4 +49,24 @@ const sold = async (id, quantity, oldInStock, oldSold) => {
       sold: quantity + oldSold,
     }
   );
+};
+
+const getOrder = async (req, res) => {
+  try {
+    // Auth user
+    const result = await auth(req, res);
+    // Find all order of user in db
+    let orders;
+    if (result.role !== "admin") {
+      orders = await Orders.find({ user: result.id }).populate(
+        "user",
+        "-password"
+      );
+    } else {
+      orders = await Orders.find().populate("user", "-password");
+    }
+    res.json({ orders });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
