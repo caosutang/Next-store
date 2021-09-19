@@ -17,6 +17,7 @@ const DetailOrder = () => {
     setOrderDetail(newArr);
   }, [orders]);
 
+  if (!auth.user) return null;
   return (
     <div className="my-3">
       <Head>
@@ -28,7 +29,11 @@ const DetailOrder = () => {
           Back
         </button>
       </div>
-      <OrderDetail orderDetail={orderDetail} />
+      <OrderDetail
+        orderDetail={orderDetail}
+        state={state}
+        dispatch={dispatch}
+      />
     </div>
   );
 };
