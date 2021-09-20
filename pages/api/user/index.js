@@ -9,19 +9,36 @@ export default async (req, res) => {
     case "PATCH":
       await uploadInfo(req, res);
       break;
+    case "GET":
+      await getUsers(req, res);
+      break;
   }
+};
+
+const getUsers = async (req, res) => {
+  try {
+    const result = await auth(req, res);
+    if (result.role !== "admin")
+      return dispatch({
+        type: "NOTIFY",
+        payload: { error: "Authorization is not valid" },
+      });
+    const users = await Users.find().select("-password");
+    res.json({
+      users,
+    });
+  } catch (err) {}
 };
 
 const uploadInfo = async (req, res) => {
   try {
     const result = await auth(req, res);
     const { name, avatar } = req.body;
-    console.log(result, name, avatar);
-
     const newUser = await Users.findOneAndUpdate(
       { _id: result.id },
       { name, avatar }
     );
+
     res.json({
       msg: "Update successful",
       user: {
