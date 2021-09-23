@@ -73,11 +73,13 @@ const updateProduct = async (req, res) => {
 
 const deleteProduct = async (req, res) => {
   try {
+    const result = await auth(req, res);
     if (result.role !== "admin")
       return res.status(400).json({ err: "Authentication is not valid" });
     const { id } = req.query;
 
     await Products.findByIdAndDelete({ _id: id });
+    res.json({ msg: "Product deleted successfully" });
   } catch (e) {
     return res.status(500).json({ err: err.message });
   }
