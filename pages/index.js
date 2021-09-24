@@ -1,16 +1,31 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import Head from "next/head";
+import { useRouter } from "next/router";
 
 import { DataContext } from "../store/GlobalState";
 import { getData } from "../utils/fetchData";
 import ProductItem from "../components/product/ProductItem";
+import filterSearch from "../utils/filterSearch";
+import Filter from "../components/Filter";
 
-const Home = ({ productProps }) => {
-  const [products, setProducts] = useState(productProps);
+const Home = (props) => {
+  const router = useRouter();
+  const [products, setProducts] = useState(props.product);
   const [state, dispatch] = useContext(DataContext);
 
   const { auth } = state;
   const [isCheck, setIsCheck] = useState(false);
+  const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    setProducts(props.product);
+  }, [props.product]);
+
+  useEffect(() => {
+    if (Object.keys(router.query).length === 0) {
+      setPage(1);
+    }
+  }, [router.query]);
 
   const handleCheck = (id) => {
     products.forEach((product) => {
@@ -39,6 +54,11 @@ const Home = ({ productProps }) => {
       })
     );
     dispatch({ type: "ADD_MODAL", payload: deleteArr });
+  };
+
+  const handleLoadmore = () => {
+    setPage(page + 1);
+    filterSearch({ router, page: page + 1 });
   };
 
   return (
@@ -72,6 +92,8 @@ const Home = ({ productProps }) => {
         </div>
       )}
 
+      <Filter state={state}></Filter>
+
       <div className="products">
         {products.length === 0 ? (
           <h2>No products</h2>
@@ -85,15 +107,35 @@ const Home = ({ productProps }) => {
           ))
         )}
       </div>
+
+      {props.result < page * 3 ? (
+        ""
+      ) : (
+        <button
+          className="btn btn-outline-info d-block mx-auto"
+          onClick={handleLoadmore}
+        >
+          Load more
+        </button>
+      )}
     </div>
   );
 };
 
-export async function getServerSideProps() {
-  const res = await getData("product");
+export async function getServerSideProps({ query }) {
+  const page = query.page || 1;
+  const category = query.category || "all";
+  const sort = query.sort || "";
+  const search = query.search || "all";
+
+  const res = await getData(
+    `product?limit=${
+      page * 3
+    }&category=${category}&sort=${sort}&title=${search}`
+  );
   return {
     props: {
-      productProps: res.products,
+      product: res.products,
       result: res.result,
     },
   };

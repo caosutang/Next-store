@@ -8,7 +8,7 @@ const auth = async (req, res) => {
   const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
   if (!decoded) return res.status(400).json({ err: "Invalid authorization" });
   const user = await Users.findOne({ _id: decoded.id });
-  return { id: user._id };
+  return { id: user._id, role: user.role, root: user.root };
 };
 
 export default auth;

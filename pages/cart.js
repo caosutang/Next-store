@@ -159,7 +159,6 @@ const Cart = () => {
             Process with payment
           </a>
         </Link>
-        {/* )} */}
       </div>
     </div>
   );

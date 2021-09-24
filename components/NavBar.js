@@ -2,7 +2,6 @@ import React, { useContext } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import Cookie from "js-cookie";
-
 import { DataContext } from "../store/GlobalState";
 
 function NavBar() {
@@ -23,6 +22,23 @@ function NavBar() {
     localStorage.removeItem("firstLogin");
     dispatch({ type: "AUTH", payload: {} });
     dispatch({ type: "NOTIFY", payload: { success: "Logged out" } });
+    router.push("/");
+  };
+
+  const adminRouter = () => {
+    return (
+      <>
+        <Link href="/users">
+          <a className="dropdown-item">Users</a>
+        </Link>
+        <Link href="/create">
+          <a className="dropdown-item">Create</a>
+        </Link>
+        <Link href="/categories">
+          <a className="dropdown-item">Categories</a>
+        </Link>
+      </>
+    );
   };
 
   const loggedRouter = () => {
@@ -49,7 +65,11 @@ function NavBar() {
           {auth.user.name}
         </a>
         <div className="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-          <a className="dropdown-item">Profile</a>
+          <Link href="/profile">
+            <a className="dropdown-item">Profile</a>
+          </Link>
+          {auth.user.role === "admin" && adminRouter()}
+          <div className="dropdown-divider"></div>
           <a className="dropdown-item" onClick={handleLogout}>
             Logout
           </a>

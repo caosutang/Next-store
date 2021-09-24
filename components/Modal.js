@@ -1,13 +1,58 @@
 import { useContext } from "react";
+import { useRouter } from "next/router";
 
 import { deleteItem } from "../store/Actions";
 import { DataContext } from "../store/GlobalState";
+import { deleteData } from "../utils/fetchData";
 
 const Modal = () => {
   const [state, dispatch] = useContext(DataContext);
-  const { modal } = state;
+  const { modal, auth } = state;
+  const router = useRouter();
+
+  const deleteCart = (item) => {
+    dispatch(deleteItem(item.data, item.id, item.type));
+  };
+
+  const deleteUser = (item) => {
+    dispatch(deleteItem(item.data, item.id, item.type));
+    deleteData(`user/${item.id}`, auth.token).then((res) => {
+      if (res.err)
+        return dispatch({ type: "NOTIFY", payload: { error: res.err } });
+      return dispatch({ type: "NOTIFY", payload: { success: res.msg } });
+    });
+  };
+
+  const deleteCategory = (item) => {
+    deleteData(`categories/${item.id}`, auth.token).then((res) => {
+      if (res.err)
+        return dispatch({ type: "NOTIFY", payload: { error: res.err } });
+
+      dispatch(deleteItem(item.data, item.id, item.type));
+      return dispatch({ type: "NOTIFY", payload: { success: res.msg } });
+    });
+  };
+
+  const deleteProduct = (item) => {
+    deleteData(`product/${item.id}`, auth.token).then((res) => {
+      if (res.err)
+        return dispatch({ type: "NOTIFY", payload: { error: res.err } });
+      dispatch({ type: "NOTIFY", payload: { success: res.msg } });
+      return router.push("/");
+    });
+  };
+
   const handleSubmit = () => {
-    return dispatch(deleteItem(modal.data, modal.id, "ADD_CART"));
+    if (modal.length !== 0) {
+      for (const item of modal) {
+        if (item.type === "ADD_CART") deleteCart(item);
+        if (item.type === "ADD_USERS") deleteUser(item);
+        if (item.type === "ADD_CATEGORIES") deleteCategory(item);
+        if (item.type === "DELETE_PRODUCT") deleteProduct(item);
+
+        dispatch({ type: "ADD_MODAL", payload: [] });
+      }
+    }
   };
 
   return (
@@ -23,7 +68,7 @@ const Modal = () => {
         <div className="modal-content">
           <div className="modal-header">
             <h5 className="modal-title text-capitalize" id="exampleModalLabel">
-              {modal.title}
+              {modal.length !== 0 && modal[0].title}
             </h5>
             <button
               type="button"

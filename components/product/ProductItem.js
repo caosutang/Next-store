@@ -4,9 +4,9 @@ import { useContext } from "react";
 import { DataContext } from "../../store/GlobalState";
 import { addToCart } from "../../store/Actions";
 
-const ProductItem = ({ product }) => {
+const ProductItem = ({ product, handleCheck }) => {
   const [state, dispatch] = useContext(DataContext);
-  const { cart } = state;
+  const { cart, auth } = state;
 
   const userLink = () => {
     return (
@@ -27,8 +27,51 @@ const ProductItem = ({ product }) => {
       </>
     );
   };
+
+  const adminLink = () => {
+    return (
+      <>
+        <Link href={`/create/${product._id}`}>
+          <a className="btn btn-info" style={{ marginRight: "5px", flex: 1 }}>
+            Edit
+          </a>
+        </Link>
+        <button
+          className="btn btn-danger"
+          style={{ marginLeft: "5px", flex: 1 }}
+          data-toggle="modal"
+          data-target="#exampleModal"
+          onClick={() =>
+            dispatch({
+              type: "ADD_MODAL",
+              payload: [
+                {
+                  data: "",
+                  id: product._id,
+                  title: product.title,
+                  type: "DELETE_PRODUCT",
+                },
+              ],
+            })
+          }
+        >
+          Delete
+        </button>
+      </>
+    );
+  };
+
   return (
     <div className="card" style={{ width: "18rem" }}>
+      {auth.user && auth.user.role === "admin" && (
+        <input
+          type="checkbox"
+          checked={product.checked}
+          className="position-absolute"
+          style={{ height: "20px", width: "20px" }}
+          onChange={() => handleCheck(product._id)}
+        />
+      )}
       <img
         src={product.images[0].url}
         className="card-img-top"
@@ -45,7 +88,9 @@ const ProductItem = ({ product }) => {
           )}
         </div>
         <p className="card-text">{product.description}</p>
-        <div className="row justify-content-between mx-0">{userLink()}</div>
+        <div className="row justify-content-between mx-0">
+          {!auth.user || auth.user.role !== "admin" ? userLink() : adminLink()}
+        </div>
       </div>
     </div>
   );
